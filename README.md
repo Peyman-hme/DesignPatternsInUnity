@@ -1,2 +1,8 @@
-# DesignPatternsInUnity
-In this repository I attempt to describe some design patterns with many examples in C# Unity environment
+<div dir='rtl'>
+# الگوهای طراحی در یونیتی
+در این مخزن گیت هاب قصد دارم به کمک مثال هایی در موتور بازی سازی یونیتی، به تشریح الگوهای طراحی مهم و پرکاربرد بپردازم.
+
+
+
+
+</div>
