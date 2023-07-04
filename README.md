@@ -25,6 +25,6 @@
 2. ایجاد یک متد static که نقش constructor را ایفا کند به صورتی که کنترل کند همواره یک instance از شی در برنامه وجود داشته باشد و همواره آن instance را بازگرداند.
 
 ساختار این الگو به صورت نمودار UML به صورت زیر می باشد:
-![الگو طراحی Singleton](https://previews.dropbox.com/p/thumb/AB9E308dgFsWKixYlRyc81RivAl91rWHJ7Kq6Kc6JxG67GWNkNNDy-5JSuCER6KhzctMq8C5HVjDY5pbQZJorH8ukcx-q8jcNdYmvxDJxPPlqOAQd_VPN18dhDBHeQ5gptAfeBXkXt-TNFHGXiU_a2jrkFl1UpnO1Nrh5GGy8-IpfOUlCRTrW5cYANGfdzYRhUHrovJCv0O88K-ixUpV0DqW4mAuCHHQ3N4qGVE9aICde8GLoq2FkkHj8rAs-LuT8y-hLbiaQ2LMDpFrMXKb9LqRg4FkuxwcTjeFJhGumMGwXaopMsvolvpNXeUyNJeIm_4eQfZ1RxTyLWU9-rl3jQNa/p.png)
+![الگو طراحی Singleton](https://s8.uupload.ir/files/singleton_b7qf.png)
 
 
