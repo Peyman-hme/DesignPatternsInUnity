@@ -27,4 +27,52 @@
 ساختار این الگو به صورت نمودار UML به صورت زیر می باشد:
 ![الگو طراحی Singleton](https://s8.uupload.ir/files/singleton_b7qf.png)
 
+شبه کدی از این الگو طراحی در ادامه آورده شده است:
+```
+1   // The Database class defines the `getInstance` method that lets
+2   // clients access the same instance of a database connection
+3   // throughout the program.
+4   class Database is
+5   // The field for storing the singleton instance should be
+6   // declared static.
+7   private static field instance: Database
+8
+9   // The singleton's constructor should always be private to
+10   // prevent direct construction calls with the `new`
+11   // operator.
+12   private constructor Database() is
+13   // Some initialization code, such as the actual
+14   // connection to a database server.
+15   // ...
+16
+17   // The static method that controls access to the singleton
+18   // instance.
+19   public static method getInstance() is
+20       if (this.instance == null) then
+21         acquireThreadLock() and then
+22       // Ensure that the instance hasn't yet been
+23       // initialized by another thread while this one
+24       // has been waiting for the lock's release.
+25       if (this.instance == null) then
+26         this.instance = new Database()
+27       return this.instance
+28
+29   // Finally, any singleton should define some business logic
+30   // which can be executed on its instance.
+31   public method query(sql) is
+32     // For instance, all database queries of an app go
+33     // through this method. Therefore, you can place
+34     // throttling or caching logic here.
+35     // ...
+36
+37   class Application is
+38     method main() is
+39       Database foo = Database.getInstance()
+40       foo.query("SELECT ...")
+41       // ...
+42       Database bar = Database.getInstance()
+43       bar.query("SELECT ...")
+44       // The variable `bar` will contain the same object as
+45       // the variable `foo`.
+```
 
