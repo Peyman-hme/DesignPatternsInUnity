@@ -10,7 +10,7 @@
 
 + Builder
 
-# الگوی طراحی Factory
+# الگوی طراحی Builder
 
 الگوی طراحی builder به ما کمک می کند تا اشیای پیچیده و با صفات زیاد را گام به گام ایجاد کنیم. تصور کنید یک کلاس داریم که دارای 10 صفت می باشد. ولی اشیایی که از روی آن می خواهیم بسازیم برخی تنها 5 تا از این صفات را استفاده و مقدار دهی می کنند و  برخی دیگر 8 تا و سایر اشیا هر 10 تا را استفاده می کنند. یک شیوه پیاده سازی کد برای این نیازمندی استفاده از یک constructor با تعداد آرگومان 10 تاست که برای ساخت برخی اشیا تنها 5 تا از این آرگومان ها مقدار دهی می شوند و بقیه مقدار null می گیرند.
 
@@ -29,7 +29,155 @@
 به ساختار درونی کلاس Director توجه کنید، در این کلاس متد make با توجه به ورودی خود اقدام به پیشبرد روند ساخت شی بر اساس ترتیب از قبل مشخص شده گام های ساخت شی میکند. برای مثال، اگر نوع ورودی تابع make از نوع simple باشد، تنها گام A را انجام داده و خروجی مطلوب را آماده می کند، اما اگر ورودی از نوع simple نبود، ابتدا گام B و سپس گام Z را برای ساخت شی و نسبت دادن ویژگی ها به آن را طی می کند.
 
 در ادامه شبه کدی با این الگوی طراحی آورده شده است:
-
+```
+1 // Using the Builder pattern makes sense only when your products
+2 // are quite complex and require extensive configuration. The
+3 // following two products are related, although they don't have
+4 // a common interface.
+5 class Car is
+6   // A car can have a GPS, trip computer and some number of
+7   // seats. Different models of cars (sports car, SUV,
+8   // cabriolet) might have different features installed or
+9   // enabled.
+10
+11 class Manual is
+12   // Each car should have a user manual that corresponds to
+13   // the car's configuration and describes all its features.
+14
+15
+16 // The builder interface specifies methods for creating the
+17 // different parts of the product objects.
+18 interface Builder is
+19   method reset()
+20   method setSeats(...)
+21   method setEngine(...)
+22   method setTripComputer(...)
+23   method setGPS(...)
+24
+25 // The concrete builder classes follow the builder interface and
+26 // provide specific implementations of the building steps. Your
+27 // program may have several variations of builders, each
+28 // implemented differently.
+29 class CarBuilder implements Builder is
+30   private field car:Car
+31
+32
+33   // A fresh builder instance should contain a blank product
+34   // object which it uses in further assembly.
+35   constructor CarBuilder() is
+36     this.reset()
+37
+38   // The reset method clears the object being built.
+39   method reset() is
+40    this.car = new Car()
+41
+42   // All production steps work with the same product instance.
+43   method setSeats(...) is
+44    // Set the number of seats in the car.
+45
+46   method setEngine(...) is
+47    // Install a given engine.
+48
+49   method setTripComputer(...) is
+50    // Install a trip computer.
+51
+52   method setGPS(...) is
+53    // Install a global positioning system.
+54
+55   // Concrete builders are supposed to provide their own
+56   // methods for retrieving results. That's because various
+57   // types of builders may create entirely different products
+58   // that don't all follow the same interface. Therefore such
+59   // methods can't be declared in the builder interface (at
+60   // least not in a statically-typed programming language).
+61   //
+62   // Usually, after returning the end result to the client, a
+63   // builder instance is expected to be ready to start
+64   // producing another product. That's why it's a usual
+65   // practice to call the reset method at the end of the
+66   // `getProduct` method body. However, this behavior isn't
+67   // mandatory, and you can make your builder wait for an
+68   // explicit reset call from the client code before disposing
+69   // of the previous result.
+70   method getProduct():Car is
+71    product = this.car
+72    this.reset()
+73    return product
+74
+75 // Unlike other creational patterns, builder lets you construct
+76 // unrelated products that don't follow a common interface.
+77 class CarManualBuilder implements Builder is
+78   private field manual:Manual
+79
+80   constructor CarManualBuilder() is
+81    this.reset()
+82
+83   method reset() is
+84    this.manual = new Manual()
+85
+86   method setSeats(...) is
+87    // Document car seat features.
+88
+89   method setEngine(...) is
+90    // Add engine instructions.
+91
+92   method setTripComputer(...) is
+93    // Add trip computer instructions.
+94
+95   method setGPS(...) is
+96    // Add GPS instructions.
+97   method getProduct():Manual is
+98    // Return the manual and reset the builder.
+99
+100
+101 // The director is only responsible for executing the building
+102 // steps in a particular sequence. It's helpful when producing
+103 // products according to a specific order or configuration.
+104 // Strictly speaking, the director class is optional, since the
+105 // client can control builders directly.
+106 class Director is
+107   private field builder:Builder
+108
+109   // The director works with any builder instance that the
+110   // client code passes to it. This way, the client code may
+111   // alter the final type of the newly assembled product.
+112   method setBuilder(builder:Builder)
+113    this.builder = builder
+114
+115   // The director can construct several product variations
+116   // using the same building steps.
+117   method constructSportsCar(builder: Builder) is
+118    builder.reset()
+119    builder.setSeats(2)
+120    builder.setEngine(new SportEngine())
+121    builder.setTripComputer(true)
+122    builder.setGPS(true)
+123
+124   method constructSUV(builder: Builder) is
+125    // ...
+126
+127
+128
+129 // The client code creates a builder object, passes it to the
+130 // director and then initiates the construction process. The end
+131 // result is retrieved from the builder object.
+132 class Application is
+133
+134   method makeCar() is
+135    director = new Director()
+136
+137   CarBuilder builder = new CarBuilder()
+138   director.constructSportsCar(builder)
+139   Car car = builder.getProduct()
+140
+141   CarManualBuilder builder = new CarManualBuilder()
+142   director.constructSportsCar(builder)
+143
+144   // The final product is often retrieved from a builder
+145   // object since the director isn't aware of and not
+146   // dependent on concrete builders and products.
+147   Manual manual = builder.getProduct()
+```
 
 
 # الگوی طراحی Singleton
