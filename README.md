@@ -12,6 +12,8 @@
 
 + [Adapter](#الگوی-طراحی-adapter)
 
++ [Flyweight](#الگوی-طراحی-flyweight)
+
 # الگوی طراحی Factory
 فرض کنید کد یک برنامه را نوشته ایم که حمل و نقل جاده ای  را کنترل و مدیریت می کند. بعد از معروف شدن برنامه از شما درخواست شده قابلیت مدیریت حمل و نقل دریایی را هم به برنامه اضافه کنید. اگر به خوبی و بدون الگوی طراحی کد زده باشید با احتمال بالا نیاز پیدا می کنید که کد های زده شده قبلی خود را دستخوش تغییر کرده تا برنامه از حمل و نقل دریایی نیز پشتیبانی کند و این نقض اصل open/close از اصول SOLID می باشد.
 در اینجا راه حل ارائه شده استفاده از الگوی طراحی factory می باشد. در این الگوی طراحی کار ساخت اشیا را از تولید مستقیم آن به کمک کلید واژه new به متد factory انتقال می دهیم. استفاده از این الگو در زمان هایی اتفاق میافتد که اطمینان و اطلاعات کاملی از نوع و وابستگی های تمامی اشیا نداشته و نمی دانیم در ادامه قرار است کلاسی جدید به برنامه برای ساخت اشیای جدید اضافه شود یا خیر.
@@ -410,3 +412,83 @@
 56 hole.fits(small_sqpeg_adapter) // true
 57 hole.fits(large_sqpeg_adapter) // false
 '''
+
+# الگوی طراحی Flyweight
+تصور کنید یک بازی طراحی کرده اید که در آن سربازان تیراندازی می کنند و پس از گذشت 30 ثانیه تعداد گلوله ها به یک میلیون می رسد و برنامه کرش می کند زیرا ram  از آبجکت های گلوله پر شده است. این آبجکت های گلوله دارای تعدادی صفت مشترک اند مانند رنگ و شکل گلوله، حال فرض کنید به تعداد یک میلیون تا از این صفات تکراری در ram وجود دارد! بایستی بدنبال راه حلی باشیم تا بتوان ویژگی های مشترک این گلوله ها را تنها یک بار در ram نگه داشته و تمامی یک میلیون آبجکت از همان یک موجودیت مشترکا استفاده کنند. الگوی طراحی flyweight دقیقا همین راه حل را دنبال می کند. 
+
+در این الگو صفات به دو دسته تقسیم می شوند:
++ صفاتی که برای تمامی اشیا مقداری یکسان دارد و تکراری است. این صفات را intrinsic می نامیم
++ صفاتی که برای هر شی مقداری یکتا دارد و بایستی به ازای تک تک این صفات مقداری را در ram نگهداری کرد. به این صفات extrinsic می گوییم
+این الگوی طراحی صفات intrinsic و extrinsic را از هم جدا کرده و در دو کلاس متفاوت نگهداری می کند. با اینکار، میتواند به تعداد مورد نیاز کلاس های extrinsic ایجاد کرد و از یک استخر شی در کلاس factory، شی از کلاس های دارای صفات intrinsic را دریافت و به رفرنس به آن را نگهداری کرد
+
+![image](https://github.com/Peyman-hme/DesignPatternsInUnity/assets/62210041/2ef40564-8f09-48ac-b16f-5a61c5a47df0)
+
+ساختار این الگو را در تصویر زیر مشاهده می کنید:
+
+شبه کد مثالی برای این الگو را در ادامه مشاهده می کنید:
+'''
+1 // The flyweight class contains a portion of the state of a
+2 // tree. These fields store values that are unique for each
+3 // particular tree. For instance, you won't find here the tree
+4 // coordinates. But the texture and colors shared between many
+5 // trees are here. Since this data is usually BIG, you'd waste a
+6 // lot of memory by keeping it in each tree object. Instead, we
+7 // can extract texture, color and other repeating data into a
+8 // separate object which lots of individual tree objects can
+9 // reference.
+10 class TreeType is
+11 ``field name
+12 ``field color
+13 ``field texture
+14 ``constructor TreeType(name, color, texture) { ... }
+15 ``method draw(canvas, x, y) is
+16 ```// 1. Create a bitmap of a given type, color & texture.
+17 ```// 2. Draw the bitmap on the canvas at X and Y coords.
+18
+19 // Flyweight factory decides whether to re-use existing
+20 // flyweight or to create a new object.
+21 class TreeFactory is
+22 ``static field treeTypes: collection of tree types
+23 ``static method getTreeType(name, color, texture) is
+24 ``type = treeTypes.find(name, color, texture)
+25 ``if (type == null)
+26 ```type = new TreeType(name, color, texture)
+27 ```treeTypes.add(type)
+28 ``return type
+29
+30 // The contextual object contains the extrinsic part of the tree
+31 // state. An application can create billions of these since they
+32 // are pretty small: just two integer coordinates and one
+33 // reference field.
+34 class Tree is
+35   field x,y
+36   field type: TreeType
+37   constructor Tree(x, y, type) { ... }
+38   method draw(canvas) is
+39    type.draw(canvas, this.x, this.y)
+40
+41 // The Tree and the Forest classes are the flyweight's clients.
+42 // You can merge them if you don't plan to develop the Tree
+43 // class any further.
+44 class Forest is
+45   field trees: collection of Trees
+46
+47   method plantTree(x, y, name, color, texture) is
+48    type = TreeFactory.getTreeType(name, color, texture)
+49    tree = new Tree(x, y, type)
+50    trees.add(tree)
+51
+52   method draw(canvas) is
+53    foreach (tree in trees) do
+54     tree.draw(canvas)
+'''
+
+
+
+
+
+
+
+
+
+
