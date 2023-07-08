@@ -7,6 +7,6 @@ public class Enemy
 {
     public virtual void Introduce()
     {
-        Debug.Log("Im an enemy");
+        Debug.Log("I'm an enemy");
     }
 }
