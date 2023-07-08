@@ -4,11 +4,11 @@
 
 در این مخزن گیت، به بررسی الگوهای طراحی زیر می پردازیم:
 
-+ Factory
++ [Factory](#الگوی-طراحی-factory)
 
-+ Builder
++ [Builder](#الگوی-طراحی-builder)
 
-+ Singleton
++ [Singleton](#الگوی-طراحی-singleton)
 
 # الگوی طراحی Factory
 فرض کنید کد یک برنامه را نوشته ایم که حمل و نقل جاده ای  را کنترل و مدیریت می کند. بعد از معروف شدن برنامه از شما درخواست شده قابلیت مدیریت حمل و نقل دریایی را هم به برنامه اضافه کنید. اگر به خوبی و بدون الگوی طراحی کد زده باشید با احتمال بالا نیاز پیدا می کنید که کد های زده شده قبلی خود را دستخوش تغییر کرده تا برنامه از حمل و نقل دریایی نیز پشتیبانی کند و این نقض اصل open/close از اصول SOLID می باشد.
@@ -23,7 +23,85 @@
 
 ![توضیح تصویر](https://s8.uupload.ir/files/factory2_3qcr.png)
 
-
+```
+1 // The creator class declares the factory method that must
+2 // return an object of a product class. The creator's subclasses
+3 // usually provide the implementation of this method.
+4 class Dialog is
+5   // The creator may also provide some default implementation
+6   // of the factory method.
+7   abstract method createButton()
+8
+9   // Note that, despite its name, the creator's primary
+10   // responsibility isn't creating products. It usually
+11   // contains some core business logic that relies on product
+12   // objects returned by the factory method. Subclasses can
+13   // indirectly change that business logic by overriding the
+14   // factory method and returning a different type of product
+15   // from it.
+16   method render() is
+17    // Call the factory method to create a product object.
+18    Button okButton = createButton()
+19    // Now use the product.
+20    okButton.onClick(closeDialog)
+21    okButton.render()
+22
+23
+24 // Concrete creators override the factory method to change the
+25 // resulting product's type.
+26 class WindowsDialog extends Dialog is
+27   method createButton() is
+28    return new WindowsButton()
+29
+30 class WebDialog extends Dialog is
+31   method createButton() is
+32    return new HTMLButton()
+33
+34
+35 // The product interface declares the operations that all
+36 // concrete products must implement.
+37 interface Button is
+38   method render()
+39   method onClick(f)
+40
+41 // Concrete products provide various implementations of the
+42 // product interface.
+43 class WindowsButton implements Button is
+44   method render(a, b) is
+45    // Render a button in Windows style.
+46   method onClick(f) is
+47    // Bind a native OS click event.
+48
+49 class HTMLButton implements Button is
+50   method render(a, b) is
+51    // Return an HTML representation of a button.
+52   method onClick(f) is
+53    // Bind a web browser click event.
+54
+55
+56 class Application is
+57   field dialog: Dialog
+58
+59   // The application picks a creator's type depending on the
+60   // current configuration or environment settings.
+61   method initialize() is
+62    config = readApplicationConfigFile()
+63
+64    if (config.OS == "Windows") then
+65     dialog = new WindowsDialog()
+66    else if (config.OS == "Web") then
+67     dialog = new WebDialog()
+68    else
+69     throw new Exception("Error! Unknown operating system.")
+70
+71   // The client code works with an instance of a concrete
+72   // creator, albeit through its base interface. As long as
+73   // the client keeps working with the creator via the base
+74   // interface, you can pass it any creator's subclass.
+75   method main() is
+76    this.initialize()
+77    dialog.render()
+```
 
 # الگوی طراحی Builder
 
