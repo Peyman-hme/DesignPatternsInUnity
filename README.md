@@ -437,24 +437,24 @@
 8 // separate object which lots of individual tree objects can
 9 // reference.
 10 class TreeType is
-11 ``field name
-12 ``field color
-13 ``field texture
-14 ``constructor TreeType(name, color, texture) { ... }
-15 ``method draw(canvas, x, y) is
-16 ```// 1. Create a bitmap of a given type, color & texture.
-17 ```// 2. Draw the bitmap on the canvas at X and Y coords.
+11   field name
+12   field color
+13   field texture
+14   constructor TreeType(name, color, texture) { ... }
+15   method draw(canvas, x, y) is
+16    // 1. Create a bitmap of a given type, color & texture.
+17    // 2. Draw the bitmap on the canvas at X and Y coords.
 18
 19 // Flyweight factory decides whether to re-use existing
 20 // flyweight or to create a new object.
 21 class TreeFactory is
-22 ``static field treeTypes: collection of tree types
-23 ``static method getTreeType(name, color, texture) is
-24 ``type = treeTypes.find(name, color, texture)
-25 ``if (type == null)
-26 ```type = new TreeType(name, color, texture)
-27 ```treeTypes.add(type)
-28 ``return type
+22   static field treeTypes: collection of tree types
+23   static method getTreeType(name, color, texture) is
+24   type = treeTypes.find(name, color, texture)
+25   if (type == null)
+26    type = new TreeType(name, color, texture)
+27    treeTypes.add(type)
+28   return type
 29
 30 // The contextual object contains the extrinsic part of the tree
 31 // state. An application can create billions of these since they
