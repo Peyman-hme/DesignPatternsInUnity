@@ -10,6 +10,8 @@
 
 + [Singleton](#الگوی-طراحی-singleton)
 
++ [Adapter](#الگوی-طراحی-adapter)
+
 # الگوی طراحی Factory
 فرض کنید کد یک برنامه را نوشته ایم که حمل و نقل جاده ای  را کنترل و مدیریت می کند. بعد از معروف شدن برنامه از شما درخواست شده قابلیت مدیریت حمل و نقل دریایی را هم به برنامه اضافه کنید. اگر به خوبی و بدون الگوی طراحی کد زده باشید با احتمال بالا نیاز پیدا می کنید که کد های زده شده قبلی خود را دستخوش تغییر کرده تا برنامه از حمل و نقل دریایی نیز پشتیبانی کند و این نقض اصل open/close از اصول SOLID می باشد.
 در اینجا راه حل ارائه شده استفاده از الگوی طراحی factory می باشد. در این الگوی طراحی کار ساخت اشیا را از تولید مستقیم آن به کمک کلید واژه new به متد factory انتقال می دهیم. استفاده از این الگو در زمان هایی اتفاق میافتد که اطمینان و اطلاعات کاملی از نوع و وابستگی های تمامی اشیا نداشته و نمی دانیم در ادامه قرار است کلاسی جدید به برنامه برای ساخت اشیای جدید اضافه شود یا خیر.
@@ -336,4 +338,75 @@
 44       // The variable `bar` will contain the same object as
 45       // the variable `foo`.
 ```
+# الگوی طراحی Adapter
+![image](https://github.com/Peyman-hme/DesignPatternsInUnity/assets/62210041/7f83f639-23b9-4a16-8918-bb81185b2284)
 
+
+فرض کنید یک برنامه دارید که با فایل های xml کار میکند. حال قصد دارید یک سیستم تحلیل آماری که از قبل کد زده اید را به این برنامه خود اضافه کنید اما مشکلی که هست این است که این سیستم تحلیل آماری شما با فایل های json کار می کند و نمیتواند محتوای فایل های xml را بخواند. در این گونه سناریو ها الگوی طراحی adapter استفاده میشود. این الگوی طراحی با کمک wrap کردن شی سرویس دهنده به صورتی که شی گیرنده دیدی نسبت به این wrap شدن نداشته باشد و به کمک واسطی سرویس خود را دریافت کند، کار تبدیل رابط هایی که با یک دیگر سازگاری ندارد را انجام میدهد.
+این الگو به دو روش پیاده سازی می شود. شیوه اول آن است که adapter ما، یک instance از کلاس سرویس دهنده را درون خود دارد و به اصطلاح wrap می کند. سپس رابط کلاینت را پیاده سازی کرده و تمامی متد های آن را بازنویسی کرده تا سرویس دهنده بتواند با فرمت رابط خود از داده های کلاینت استفاده کند. شکل زیر ساختار این روش پیاده سازی را نشان می دهد:
+![image](https://github.com/Peyman-hme/DesignPatternsInUnity/assets/62210041/434ebc97-8c49-4c25-ab21-fc6c7ae05d99)
+
+شیوه دوم پیاده سازی این الگو آن است که کلاس adapter ما از هر دو کلاس سرویس دهنده و کلاینت ارث بری کرده و متد های آنها را بازنویسی می کند. در این شیوه دیگر نیاز به wrap کردن سرویس دهنده نیست. شکل ساختار این نحوه پیاده سازی را در تصویر زیر مشاهده می کند:
+![image](https://github.com/Peyman-hme/DesignPatternsInUnity/assets/62210041/eaee8a40-154c-4803-b02c-6fb6d5ea3f33)
+
+در ادامه یک شبه کد از پیاده سازی این الگو آورده شده است:
+
+'''
+1 // Say you have two classes with compatible interfaces:
+2 // RoundHole and RoundPeg.
+3 class RoundHole is
+4   constructor RoundHole(radius) { ... }
+5
+6   method getRadius() is
+7    // Return the radius of the hole.
+8
+9   method fits(peg: RoundPeg) is
+10    return this.getRadius() >= peg.radius()
+11
+12 class RoundPeg is
+13   constructor RoundPeg(radius) { ... }
+14
+15   method getRadius() is
+16    // Return the radius of the peg.
+17
+18
+19 // But there's an incompatible class: SquarePeg.
+20 class SquarePeg is
+21   constructor SquarePeg(width) { ... }
+22
+23   method getWidth() is
+24    // Return the square peg width.
+25
+26
+27 // An adapter class lets you fit square pegs into round holes.
+28 // It extends the RoundPeg class to let the adapter objects act
+29 // as round pegs.
+30 class SquarePegAdapter extends RoundPeg is
+31   // In reality, the adapter contains an instance of the
+32   // SquarePeg class.
+33   private field peg: SquarePeg
+34
+35   constructor SquarePegAdapter(peg: SquarePeg) is
+36    this.peg = peg
+37
+38   method getRadius() is
+39    // The adapter pretends that it's a round peg with a
+40    // radius that could fit the square peg that the adapter
+41    // actually wraps.
+42    return peg.getWidth() * Math.sqrt(2) / 2
+43
+44
+45 // Somewhere in client code.
+46 hole = new RoundHole(5)
+47 rpeg = new RoundPeg(5)
+48 hole.fits(rpeg) // true
+49
+50 small_sqpeg = new SquarePeg(5)
+51 large_sqpeg = new SquarePeg(10)
+52 hole.fits(small_sqpeg) // this won't compile (incompatible types)
+53
+54 small_sqpeg_adapter = new SquarePegAdapter(small_sqpeg)
+55 large_sqpeg_adapter = new SquarePegAdapter(large_sqpeg)
+56 hole.fits(small_sqpeg_adapter) // true
+57 hole.fits(large_sqpeg_adapter) // false
+'''
