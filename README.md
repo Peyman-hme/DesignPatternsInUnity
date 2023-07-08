@@ -352,8 +352,7 @@
 ![image](https://github.com/Peyman-hme/DesignPatternsInUnity/assets/62210041/eaee8a40-154c-4803-b02c-6fb6d5ea3f33)
 
 در ادامه یک شبه کد از پیاده سازی این الگو آورده شده است:
-
-'''
+```
 1 // Say you have two classes with compatible interfaces:
 2 // RoundHole and RoundPeg.
 3 class RoundHole is
@@ -411,7 +410,8 @@
 55 large_sqpeg_adapter = new SquarePegAdapter(large_sqpeg)
 56 hole.fits(small_sqpeg_adapter) // true
 57 hole.fits(large_sqpeg_adapter) // false
-'''
+```
+
 
 # الگوی طراحی Flyweight
 تصور کنید یک بازی طراحی کرده اید که در آن سربازان تیراندازی می کنند و پس از گذشت 30 ثانیه تعداد گلوله ها به یک میلیون می رسد و برنامه کرش می کند زیرا ram  از آبجکت های گلوله پر شده است. این آبجکت های گلوله دارای تعدادی صفت مشترک اند مانند رنگ و شکل گلوله، حال فرض کنید به تعداد یک میلیون تا از این صفات تکراری در ram وجود دارد! بایستی بدنبال راه حلی باشیم تا بتوان ویژگی های مشترک این گلوله ها را تنها یک بار در ram نگه داشته و تمامی یک میلیون آبجکت از همان یک موجودیت مشترکا استفاده کنند. الگوی طراحی flyweight دقیقا همین راه حل را دنبال می کند. 
@@ -426,7 +426,7 @@
 ساختار این الگو را در تصویر زیر مشاهده می کنید:
 
 شبه کد مثالی برای این الگو را در ادامه مشاهده می کنید:
-'''
+```
 1 // The flyweight class contains a portion of the state of a
 2 // tree. These fields store values that are unique for each
 3 // particular tree. For instance, you won't find here the tree
@@ -481,7 +481,7 @@
 52   method draw(canvas) is
 53    foreach (tree in trees) do
 54     tree.draw(canvas)
-'''
+```
 
 
 
