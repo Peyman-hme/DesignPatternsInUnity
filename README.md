@@ -14,6 +14,8 @@
 
 + [Flyweight](#الگوی-طراحی-flyweight)
 
++ [Observer](#الگوی-طراحی-observer)
+
 # الگوی طراحی Factory
 فرض کنید کد یک برنامه را نوشته ایم که حمل و نقل جاده ای  را کنترل و مدیریت می کند. بعد از معروف شدن برنامه از شما درخواست شده قابلیت مدیریت حمل و نقل دریایی را هم به برنامه اضافه کنید. اگر به خوبی و بدون الگوی طراحی کد زده باشید با احتمال بالا نیاز پیدا می کنید که کد های زده شده قبلی خود را دستخوش تغییر کرده تا برنامه از حمل و نقل دریایی نیز پشتیبانی کند و این نقض اصل open/close از اصول SOLID می باشد.
 در اینجا راه حل ارائه شده استفاده از الگوی طراحی factory می باشد. در این الگوی طراحی کار ساخت اشیا را از تولید مستقیم آن به کمک کلید واژه new به متد factory انتقال می دهیم. استفاده از این الگو در زمان هایی اتفاق میافتد که اطمینان و اطلاعات کاملی از نوع و وابستگی های تمامی اشیا نداشته و نمی دانیم در ادامه قرار است کلاسی جدید به برنامه برای ساخت اشیای جدید اضافه شود یا خیر.
@@ -482,6 +484,102 @@
 53    foreach (tree in trees) do
 54     tree.draw(canvas)
 ```
+
+# الگوی طراحی Observer
+تصور کنید افرادی هستند که علاقه مند به خواندن مجله اخبار تکنولوژی اند. در ابتدا این افراد مجبور بودند هر روز به دکه محله‌شان سر بزنند تا ببیند آیا مجله مورد علاقه شان منتشر شده است یا خیر. این رفت و آمد هرروزه باعث شده بود خوانندگان مجله خسته شوند و میلشان به خرید و خواندن مجله کم شود. پس از مدتی مجله برای اینکه رفاه را برای خوانندگانش فراهم کند خودش مجلات را هر موقع که منتشر می شد به آدرس تمامی خانه های محله ارسال می کرد. پس از مدتی برخی ساکنین محله که علاقه ای به خواندن این مجله نداشتن از ارسال شدن هر باره مجله به در خانه شان و ایجاد زباله خشک ناراضی شده بودند. سپس مجله راه حلی برای این مشکل پیدا کرد. از علاقه مندان به مجله خود خواست به عنوان مشترک دائمی در مجله ثبت‌نام کنند تا مجله تنها نشریات خود را به آدرس علاقه مندان مجله خود ارسال کند. اینگونه هم حواننگان راضی میشوند و هم سایر افراد مجله اضافی تحویل نمی گیرند، برای مجله هم هزینه اضافی ارسال مجله کاسته میشود.
+سناریو توضیف شده در بخش قبل شیوه جل مسائل به روش الگوی طراحی observer را توصیف می کرد. در این الگو، ما یک نشردهنده (publisher) داریم که تعدادی مشترک (subascrier) علاقه مند به دنبال کردن و مشاهده آن هستند. هر موقع حالت publisher تغییر کند، subscriber های خودش را مطلع می سازد.
+ساختار این الگو به شکل زیر می باشد:
+![image](https://github.com/Peyman-hme/DesignPatternsInUnity/assets/62210041/1d22b034-65dc-4711-a309-aa6b55d2567d)
+
+شبه کد این الگوی طراحی در ادامه آورده شده است:
+```
+1 // The base publisher class includes subscription management
+2 // code and notification methods.
+3 class EventManager is
+4   private field listeners: hash map of event types and listeners
+5
+6   method subscribe(eventType, listener) is
+7    listeners.add(eventType, listener)
+8
+9   method unsubscribe(eventType, listener) is
+10    listeners.remove(eventType, listener)
+11
+12   method notify(eventType, data) is
+13    foreach (listener in listeners.of(eventType)) do
+14     listener.update(data)
+15
+16 // The concrete publisher contains real business logic that's
+17 // interesting for some subscribers. We could derive this class
+18 // from the base publisher, but that isn't always possible in
+19 // real life because the concrete publisher might already be a
+20 // subclass. In this case, you can patch the subscription logic
+21 // in with composition, as we did here.
+22 class Editor is
+23   private field events: EventManager
+24   private field file: File
+25
+26   constructor Editor() is
+27    events = new EventManager()
+28   // Methods of business logic can notify subscribers about
+29   // changes.
+30   method openFile(path) is
+31    this.file = new File(path)
+32    events.notify("open", file.name)
+33
+34   method saveFile() is
+35    file.write()
+36    events.notify("save", file.name)
+37
+38 // ...
+39
+40
+41 // Here's the subscriber interface. If your programming language
+42 // supports functional types, you can replace the whole
+43 // subscriber hierarchy with a set of functions.
+44 interface EventListener is
+45   method update(filename)
+46
+47 // Concrete subscribers react to updates issued by the publisher
+48 // they are attached to.
+49 class LoggingListener implements EventListener is
+50   private field log: File
+51   private field message
+52
+53   constructor LoggingListener(log_filename, message) is
+54    this.log = new File(log_filename)
+55    this.message = message
+56
+57   method update(filename) is
+58    log.write(replace('%s',filename,message))
+59
+60 class EmailAlertsListener implements EventListener is
+61   private field email: string
+62
+63   constructor EmailAlertsListener(email, message) is
+64    this.email = email
+65    this.message = message
+66
+67   method update(filename) is
+68    system.email(email, replace('%s',filename,message))
+69
+70
+71 // An application can configure publishers and subscribers at
+72 // runtime.
+73 class Application is
+74   method config() is
+75    editor = new TextEditor()
+76
+77    logger = new LoggingListener(
+78    "/path/to/log.txt",
+79    "Someone has opened the file: %s");
+80    editor.events.subscribe("open", logger)
+81
+82    emailAlerts = new EmailAlertsListener(
+83    "admin@example.com",
+84    "Someone has changed the file: %s")
+85    editor.events.subscribe("save", emailAlerts)
+```
+
 
 
 
